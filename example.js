@@ -70,6 +70,11 @@ Ext.onReady(function() {
   });
   store.loadData(myData);
   
+  var filterRow = new Ext.ux.grid.FilterRow();
+  filterRow.on("change", function(obj) {
+    store.filter("company", obj.data.company);
+  });
+  
   // create the Grid
   
   var grid = new Ext.grid.GridPanel({
@@ -81,7 +86,7 @@ Ext.onReady(function() {
       { header: "% Change", width: 75, sortable: true, renderer: pctChange, dataIndex: 'pctChange' },
       { header: "Last Updated", width: 85, sortable: true, renderer: Ext.util.Format.dateRenderer('m/d/Y'), dataIndex: 'lastChange' }
     ],
-    plugins: [new Ext.ux.grid.FilterRow()],
+    plugins: [filterRow],
     stripeRows: true,
     height: 350,
     width: 600,
