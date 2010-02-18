@@ -1,71 +1,101 @@
 Ext.namespace('Ext.ux.grid');
 
-Ext.ux.grid.FilterRow = function(config) {
-  Ext.apply(this, config);
-  
-  this.addEvents(
-    "change"
-  );
-  
-  Ext.ux.grid.FilterRow.superclass.constructor.call(this);
-};
-
-Ext.extend(Ext.ux.grid.FilterRow, Ext.util.Observable, {
-  addContextMenu: true,
+/**
+ * @class Ext.ux.grid.FilterRow
+ * @extends Ext.util.Observable
+ * 
+ * Grid plugin that adds filtering row below grid header.
+ * 
+ * <p>To add filtering to column, define "filter" property in column
+ * config to be an object with the following properties:
+ * 
+ * <ul>
+ * <li>field - an instance of a form field component.
+ * <li>events - array of event names to listen from this field.
+ * Each time one of the events is heard, FilterRow will fire its "change"
+ * event. (Defaults to ["change"], which should be implemented by all
+ * Ext.form.Field descendants.)
+ * </ul>
+ * 
+ * <pre><code>
+    columns: [
+      {
+        header: 'Company',
+        width: 160,
+        dataIndex: 'company',
+        filter: {
+          field: new Ext.form.TextField(),
+          events: ["keyup", "specialkey"]
+        }
+      },
+      ...
+    ]
+ * </code></pre>
+ * 
+ * Based on: http://www.extjs.net/forum/showthread.php?t=55730
+ */
+Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
+  constructor: function(config) {
+    Ext.apply(this, config);
+    
+    this.addEvents(
+      /**
+       * @event change
+       * Fired when any one of the fields is changed.
+       * @param {Object} filterValues object containing values of all
+       * filter-fields.  When column has "id" defined, then property
+       * with that ID will hold filter value.  When no "id" defined,
+       * then numeric indexes are used, starting from zero.
+       */
+      "change"
+    );
+    
+    Ext.ux.grid.FilterRow.superclass.constructor.call(this);
+  },
   
   init: function(grid) {
     this.grid = grid;
+    var cm = grid.getColumnModel();
     var view = grid.getView();
     
     this.applyTemplate();
     
-    var gridHandlers = {
-      scope: this,
-      render: this.renderFields,
-      staterestore: this.onColumnChange
-    };
+    // when grid initially rendered
+    grid.on("render", this.renderFields, this);
     
-    if (this.addContextMenu) {
-      gridHandlers.contextmenu = this.onContextMenu;
-    }
-    grid.on(gridHandlers);
+    // when Ext grid state restored (untested)
+    grid.on("staterestore", this.onColumnChange, this);
     
-    view.on({
-      scope: this,
-      'beforerefresh': this.onColumnChange,
-      'refresh': this.renderFields
-    });
-    
-    // For autoExpand
-    view.onColumnWidthUpdated = view.onColumnWidthUpdated.createSequence(function(col, w) {
-      this.syncFields(col, w);
+    // when the width of the whole grid changed
+    grid.on("resize", this.resizeAllFilterFields, this);
+    // when column width programmatically changed
+    cm.on("widthchange", this.onColumnWidthChange, this);
+    // Monitor changes in column widths
+    // newWidth will contain width like "100px", so we use parseInt to get rid of "px"
+    view.onColumnWidthUpdated = view.onColumnWidthUpdated.createSequence(function(colIndex, newWidth) {
+      this.onColumnWidthChange(this.grid.getColumnModel(), colIndex, parseInt(newWidth, 10));
     }, this);
     
-    var cm = grid.getColumnModel();
-    cm.on({
-      scope: this,
-      'widthchange': this.onColumnWidthChange,
-      'hiddenchange': this.onColumnHiddenChange
-    });
+    // before column is moved, remove fields, after the move add them back
+    cm.on("columnmoved", this.onColumnChange, this);
+    view.afterMove = view.afterMove.createSequence(this.renderFields, this);
+    
+    // When column hidden or shown
+    cm.on("hiddenchange", this.onColumnHiddenChange, this);
   },
   
   onColumnHiddenChange: function(cm, colIndex, hidden) {
-    var gridId = this.grid.id;
-    var col = cm.getColumnById(cm.getColumnId(colIndex));
-    var editorDiv = Ext.get(gridId + '-filter-' + col.id);
-    if (editorDiv) {
-      editorDiv.parent().dom.style.display = hidden ? 'none' : '';
+    var filterDiv = Ext.get(this.getFilterDivId(cm.getColumnId(colIndex)));
+    if (filterDiv) {
+      filterDiv.parent().dom.style.display = hidden ? 'none' : '';
     }
+    this.resizeAllFilterFields();
   },
   
   applyTemplate: function() {
-    var grid = this.grid;
-    var view = grid.getView();
-    var cols = grid.getColumnModel().config;
-    
     var colTpl = "";
-    Ext.each(cols, function(col) {
-      var filterDivId = grid.id + "-filter-" + col.id;
+    this.eachColumn(function(col) {
+      var filterDivId = this.getFilterDivId(col.id);
       var style = col.hidden ? " style='display:none'" : "";
       colTpl += '<td' + style + '><div class="x-small-editor" id="' + filterDivId + '"></div></td>';
     });
@@ -79,72 +109,52 @@ Ext.extend(Ext.ux.grid.FilterRow, Ext.util.Observable, {
       "</table>"
     );
     
-    var view = grid.getView();
+    var view = this.grid.getView();
     Ext.applyIf(view, { templates: {} });
     view.templates.header = headerTpl;
   },
   
   onColumnChange: function() {
-    var grid = this.grid;
-    var cm = grid.getColumnModel();
-    var cols = cm.config;
-    var gridId = grid.id;
-    Ext.each(cols, function(col) {
-      var editor = Ext.getCmp(gridId + '-filter-editor-' + col.id);
+    this.eachColumn(function(col) {
+      var editor = this.getFilterField(col);
       if (editor && editor.rendered) {
-        var el = editor.el.dom;
+        var el = this.getFilterFieldDom(editor);
         var parentNode = el.parentNode;
         parentNode.removeChild(el);
       }
-    }, this);
+    });
     this.applyTemplate();
   },
   
   renderFields: function() {
-    var grid = this.grid;
-    var cm = grid.getColumnModel();
-    var cols = cm.config;
-    var gridId = grid.id;
-    Ext.each(cols, function(col) {
-      var filterDiv = Ext.get(gridId + "-filter-" + col.id);
-      var editor = Ext.getCmp(gridId + '-filter-editor-' + col.id);
+    this.eachColumn(function(col) {
+      var filterDiv = Ext.get(this.getFilterDivId(col.id));
+      var editor = this.getFilterField(col);
       if (editor) {
         editor.setWidth(col.width - 2);
         if (editor.rendered) {
-          filterDiv.appendChild(editor.el);
-        } else {
-          if (editor.getXType() == 'combo') {
-            editor.on('select', this.onChange, this);
-          } else {
-            editor.on('change', this.onChange, this);
-          }
+          filterDiv.appendChild(this.getFilterFieldDom(editor));
+        }
+        else {
+          Ext.each(col.filter.events || ["change"], function(eventName) {
+            editor.on(eventName, this.onFieldChange, this);
+          }, this);
+          
           editor.render(filterDiv);
         }
       }
-    }, this);
+    });
   },
   
-  onContextMenu: function(e) {
-    if (!this.contextMenu) {
-      this.contextMenu = new Ext.menu.Menu({
-        id: 'gridCtxMenu',
-        items: [{ text: 'Remove filters', handler: this.clearFilters, scope: this}]
-      });
-    }
-    e.stopEvent();
-    this.contextMenu.showAt(e.getXY());
+  onFieldChange: function() {
+    this.fireEvent("change", this.getData());
   },
   
   getData: function() {
-    var grid = this.grid;
-    var cm = grid.getColumnModel();
-    var cols = cm.config;
-    var gridId = grid.id;
     var data = {};
-    Ext.each(cols, function(col) {
+    this.eachColumn(function(col) {
       if (!col.hidden) {
-        var filterDivId = gridId + "-filter-" + col.id;
-        var editor = Ext.getCmp(gridId + '-filter-editor-' + col.id);
+        var editor = this.getFilterField(col);
         if (editor) {
           data[col.id] = editor.getValue();
         }
@@ -153,26 +163,54 @@ Ext.extend(Ext.ux.grid.FilterRow, Ext.util.Observable, {
     return data;
   },
   
-  onChange: function() {
-    this.fireEvent("change", { filter: this, data: this.getData() });
+  onColumnWidthChange: function(cm, colIndex, newWidth) {
+    this.resizeFilterField(cm.getColumnById(cm.getColumnId(colIndex)), newWidth);
   },
   
-  clearFilters: function() {
-    this.fireEvent("change", { filter: this, data: {} });
+  // When grid has forceFit: true, then all columns will be resized
+  // when grid resized or column added/removed.
+  resizeAllFilterFields: function() {
+    var cm = this.grid.getColumnModel();
+    this.eachColumn(function(col, i) {
+      this.resizeFilterField(col, cm.getColumnWidth(i));
+    });
   },
   
-  onColumnWidthChange: function(colModel, colIndex, newWidth) {
-    this.syncFields(colIndex, newWidth);
-  },
-  
-  syncFields: function(colIndex, newWidth) {
-    var grid = this.grid;
-    var cm = grid.getColumnModel();
-    var col = cm.getColumnById(cm.getColumnId(colIndex));
-    var editor = Ext.getCmp(grid.id + '-filter-editor-' + col.id);
-    newWidth = parseInt(newWidth);
+  // Resizes filter field according to the width of column
+  resizeFilterField: function(column, newColumnWidth) {
+    var editor = this.getFilterField(column);
     if (editor) {
-      editor.setWidth(newWidth - 2);
+      editor.setWidth(newColumnWidth - 2);
     }
+  },
+  
+  // Returns HTML ID of element containing filter div
+  getFilterDivId: function(columnId) {
+    return this.grid.id + '-filter-' + columnId;
+  },
+  
+  // returns filter field of a column
+  getFilterField: function(column) {
+    return column.filter && column.filter.field;
+  },
+  
+  /**
+   * Returns DOM Element that is the root element of form field.
+   * 
+   * For most fields, this will be the "el" property, but TriggerField
+   * and it's descendants will wrap "el" inside another div called
+   * "wrap".
+   * @private
+   */
+  getFilterFieldDom: function(field) {
+    return field.wrap ? field.wrap.dom : field.el.dom;
+  },
+  
+  // Iterates over each column in column config array
+  eachColumn: function(func) {
+    Ext.each(this.grid.getColumnModel().config, func, this);
   }
+  
 });
+
+
