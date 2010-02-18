@@ -59,6 +59,8 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     var view = grid.getView();
     
     this.applyTemplate();
+    // add class for attatching plugin specific styles
+    grid.addClass('filter-row-grid');
     
     // when grid initially rendered
     grid.on("render", this.renderFields, this);
@@ -103,7 +105,7 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     var headerTpl = new Ext.Template(
       '<table border="0" cellspacing="0" cellpadding="0" style="{tstyle}">',
       '<thead><tr class="x-grid3-hd-row">{cells}</tr></thead>',
-      '<tbody><tr class="new-task-row">',
+      '<tbody><tr class="filter-row-header">',
       colTpl,
       '</tr></tbody>',
       "</table>"

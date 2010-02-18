@@ -1,0 +1,7 @@
+.filter-row-grid .x-grid3-header {
+    background: #f9f9f9 url(filter-row-hrow.gif) repeat-x left top;
+}
+
+.filter-row-grid .filter-row-header {
+    height: 26px;
+}
