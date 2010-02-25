@@ -62,7 +62,10 @@ Ext.onReady(function() {
         dataIndex: 'company',
         filter: {
           field: new Ext.form.TextField({enableKeyEvents: true}),
-          events: ["keyup"]
+          events: ["keyup"],
+          test: function(value, fieldValue) {
+            return new RegExp("^"+fieldValue, "i").test(value);
+          }
         }
       },
       {
@@ -73,7 +76,10 @@ Ext.onReady(function() {
         renderer: 'usMoney',
         dataIndex: 'price',
         filter: {
-          field: new Ext.form.NumberField()
+          field: new Ext.form.NumberField(),
+          test: function(value, fieldValue) {
+            return value >= fieldValue;
+          }
         }
       },
       {
@@ -97,7 +103,10 @@ Ext.onReady(function() {
             triggerAction: 'all',
             value: "-"
           }),
-          events: ["select"]
+          events: ["select"],
+          test: function(value, fieldValue) {
+            return fieldValue === "-" || fieldValue === value;
+          }
         }
       }
     ],

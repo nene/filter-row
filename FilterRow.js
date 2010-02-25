@@ -23,6 +23,8 @@ Ext.namespace('Ext.ux.grid');
  * Each time one of the events is heard, FilterRow will fire its "change"
  * event. (Defaults to ["change"], which should be implemented by all
  * Ext.form.Field descendants.)
+ * <li>test - function that returns true when record should be filtered
+ * in and false when not.
  * </ul>
  * 
  * <pre><code>
@@ -33,7 +35,10 @@ Ext.namespace('Ext.ux.grid');
         dataIndex: 'company',
         filter: {
           field: new Ext.form.TextField(),
-          events: ["keyup", "specialkey"]
+          events: ["keyup", "specialkey"],
+          test: function(value, fieldValue) {
+            return value === fieldValue;
+          }
         }
       },
       ...
@@ -155,7 +160,30 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
   },
   
   onFieldChange: function() {
-    this.fireEvent("change", this.getData());
+    this.grid.getStore().filterBy(this.createFilter());
+  },
+  
+  createFilter: function() {
+    var eq = function(a,b){return a===b;};
+    
+    var tests = {};
+    this.eachColumn(function(col) {
+      if (!col.hidden && col.filter) {
+        var t = col.filter.test || eq;
+        var editor = this.getFilterField(col);
+        var fieldValue = editor.getValue();
+        tests[col.id] = function(v){ return t(v, fieldValue); };
+      }
+    });
+    
+    return function(record) {
+      for (var i in tests) {
+        if (!tests[i](record.get(i))) {
+          return false;
+        }
+      }
+      return true;
+    };
   },
   
   getData: function() {
