@@ -39,18 +39,6 @@ Ext.onReady(function() {
     ['Wal-Mart Stores, Inc.', 45.45, 'down']
   ]);
   
-  var filterRow = new Ext.ux.grid.FilterRow();
-  filterRow.on("change", function(filterValues) {
-    var reCompany = new RegExp("^"+filterValues.company);
-    var minPrice = filterValues.price;
-    var change = filterValues.change;
-    store.filterBy(function(r) {
-      return reCompany.test(r.get("company")) &&
-             minPrice <= r.get("price") &&
-             (change === "-" || change === r.get("change"));
-    });
-  });
-  
   var grid = new Ext.grid.GridPanel({
     store: store,
     columns: [
@@ -110,7 +98,7 @@ Ext.onReady(function() {
         }
       }
     ],
-    plugins: [filterRow],
+    plugins: [new Ext.ux.grid.FilterRow()],
     stripeRows: true,
     autoExpandColumn: 'company',
     height: 350,

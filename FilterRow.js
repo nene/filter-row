@@ -10,7 +10,6 @@ Ext.namespace('Ext.ux.grid');
 
 /**
  * @class Ext.ux.grid.FilterRow
- * @extends Ext.util.Observable
  * 
  * Grid plugin that adds filtering row below grid header.
  * 
@@ -45,25 +44,7 @@ Ext.namespace('Ext.ux.grid');
     ]
  * </code></pre>
  */
-Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
-  constructor: function(config) {
-    Ext.apply(this, config);
-    
-    this.addEvents(
-      /**
-       * @event change
-       * Fired when any one of the fields is changed.
-       * @param {Object} filterValues object containing values of all
-       * filter-fields.  When column has "id" defined, then property
-       * with that ID will hold filter value.  When no "id" defined,
-       * then numeric indexes are used, starting from zero.
-       */
-      "change"
-    );
-    
-    Ext.ux.grid.FilterRow.superclass.constructor.call(this);
-  },
-  
+Ext.ux.grid.FilterRow = Ext.extend(Object, {
   init: function(grid) {
     this.grid = grid;
     var cm = grid.getColumnModel();
@@ -184,19 +165,6 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
       }
       return true;
     };
-  },
-  
-  getData: function() {
-    var data = {};
-    this.eachColumn(function(col) {
-      if (!col.hidden) {
-        var editor = this.getFilterField(col);
-        if (editor) {
-          data[col.id] = editor.getValue();
-        }
-      }
-    });
-    return data;
   },
   
   onColumnWidthChange: function(cm, colIndex, newWidth) {
