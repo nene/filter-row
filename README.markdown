@@ -5,6 +5,8 @@ Plugin for Ext.grid.GridPanel that places form fields right below grid
 headers, where they can be used for filtering grid contents or
 (haven't really tried that) inserting new data.
 
+Licensed under [GNU General Public License v3][gpl3].
+
 How it works
 ------------
 
@@ -88,6 +90,7 @@ Changelog
 * 0.1 version
   * Initial version by [durlabh][post] (I'll call it 0.1).
 
+[gpl3]: http://www.gnu.org/licenses/gpl.html
 [post]: http://www.extjs.net/forum/showthread.php?t=55730
 [saneth]: http://www.extjs.net/forum/showthread.php?p=438457#post438457
 [live]: http://triin.net/temp/filter-row/
