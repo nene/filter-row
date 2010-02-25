@@ -149,19 +149,21 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   createFilter: function() {
     var eq = function(a,b){return a===b;};
     
-    var tests = {};
+    var tests = [];
     this.eachColumn(function(col) {
       if (!col.hidden && col.filter) {
         var t = col.filter.test || eq;
-        var editor = this.getFilterField(col);
-        var fieldValue = editor.getValue();
-        tests[col.id] = function(v){ return t(v, fieldValue); };
+        var dataIndex = col.dataIndex;
+        var fieldValue = this.getFilterField(col).getValue();
+        tests.push(function(r){
+          return t(r.get(dataIndex), fieldValue);
+        });
       }
     });
     
     return function(record) {
-      for (var i in tests) {
-        if (!tests[i](record.get(i))) {
+      for (var i=0; i<tests.length; i++) {
+        if (!tests[i](record)) {
           return false;
         }
       }

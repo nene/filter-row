@@ -57,7 +57,6 @@ Ext.onReady(function() {
         }
       },
       {
-        id: 'price',
         header: 'Price',
         width: 75,
         sortable: true,
@@ -71,7 +70,6 @@ Ext.onReady(function() {
         }
       },
       {
-        id: 'change',
         header: 'Change',
         width: 75,
         sortable: true,
