@@ -1,3 +1,11 @@
+/*!
+ * Ext JS FilterRow plugin v0.2
+ * http://github.com/nene/filter-row
+ *
+ * Copyright 2010 Rene Saarsoo
+ * Licensed under GNU General Public License v3.
+ * http://www.gnu.org/licenses/
+ */
 Ext.namespace('Ext.ux.grid');
 
 /**
@@ -31,8 +39,6 @@ Ext.namespace('Ext.ux.grid');
       ...
     ]
  * </code></pre>
- * 
- * Based on: http://www.extjs.net/forum/showthread.php?t=55730
  */
 Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
   constructor: function(config) {
