@@ -107,7 +107,7 @@ Ext.onReady(function() {
     height: 350,
     width: 450,
     title: 'Grid with RowFilter plugin',
-    renderTo: document.body
+    renderTo: "grid-container"
   });
   
 });
