@@ -35,8 +35,8 @@ Ext.namespace('Ext.ux.grid');
         filter: {
           field: new Ext.form.TextField(),
           events: ["keyup", "specialkey"],
-          test: function(value, fieldValue) {
-            return value === fieldValue;
+          test: function(fieldValue, value) {
+            return fieldValue === value;
           }
         }
       },
@@ -156,7 +156,7 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
         var dataIndex = col.dataIndex;
         var fieldValue = this.getFilterField(col).getValue();
         tests.push(function(r){
-          return t(r.get(dataIndex), fieldValue);
+          return t(fieldValue, r.get(dataIndex));
         });
       }
     });

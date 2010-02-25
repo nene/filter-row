@@ -51,7 +51,7 @@ Ext.onReady(function() {
         filter: {
           field: new Ext.form.TextField({enableKeyEvents: true}),
           events: ["keyup"],
-          test: function(value, fieldValue) {
+          test: function(fieldValue, value) {
             return new RegExp("^"+fieldValue, "i").test(value);
           }
         }
@@ -64,8 +64,8 @@ Ext.onReady(function() {
         dataIndex: 'price',
         filter: {
           field: new Ext.form.NumberField(),
-          test: function(value, fieldValue) {
-            return value >= fieldValue;
+          test: function(fieldValue, value) {
+            return fieldValue <= value;
           }
         }
       },
@@ -90,7 +90,7 @@ Ext.onReady(function() {
             value: "-"
           }),
           events: ["select"],
-          test: function(value, fieldValue) {
+          test: function(fieldValue, value) {
             return fieldValue === "-" || fieldValue === value;
           }
         }
