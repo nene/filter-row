@@ -19,11 +19,11 @@ Ext.namespace('Ext.ux.grid');
  * <ul>
  * <li>field - an instance of a form field component.
  * <li>events - array of event names to listen from this field.
- * Each time one of the events is heard, FilterRow will fire its "change"
- * event. (Defaults to ["change"], which should be implemented by all
- * Ext.form.Field descendants.)
- * <li>test - function that returns true when record should be filtered
- * in and false when not.
+ * Each time one of the events is heard, FilterRow will filter the grid.
+ * (By default it contains the "change" event, which should be
+ * implemented by all Ext.form.Field descendants.)
+ * <li>test - predicate function that determines if record should be
+ * displayed in grid or not.
  * </ul>
  * 
  * <pre><code>
@@ -144,6 +144,8 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
     this.grid.getStore().filterBy(this.createFilter());
   },
   
+  // Creates store filtering function by combining
+  // all "test" predicates.
   createFilter: function() {
     var eq = function(a,b){return a===b;};
     
