@@ -60,16 +60,33 @@ any other plugin:
 
     plugins: [filterRow],
 
+A picture speaks a thousand words
+----------------------------------
+
+* [Live example][live]
+
 This is not one man's work
 --------------------------
 
 * Based on [durlabh's code from ExtJS forum][post].
 * Thanks to [Saneth][saneth] for patch on better look.
 
-A picture speaks a thousand words
-----------------------------------
+Changelog
+---------
 
-* [Live example][live]
+* 0.2 version
+  * Filter editors are defined inside grid columns. No more global ID-s.
+  * For each editor an event name can be configured. So you can
+    configure TextField to trigger the FilterRow "change" event on
+    each keypress, while for ComboBox just listen the "change" event.
+  * The "change" event now only contains the data object with values
+    of each field. No more {filter: ..., data: ...}, just the data
+    part of that.
+  * Finally added some documentation.
+  * Look-and-feel improvement by [Saneth][saneth].
+
+* 0.1 version
+  * Initial version by [durlabh][post] (I'll call it 0.1).
 
 [post]: http://www.extjs.net/forum/showthread.php?t=55730
 [saneth]: http://www.extjs.net/forum/showthread.php?p=438457#post438457
