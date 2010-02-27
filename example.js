@@ -60,10 +60,9 @@ Ext.onReady(function() {
         renderer: 'usMoney',
         dataIndex: 'price',
         filter: {
-          field: new Ext.form.NumberField(),
-          test: function(fieldValue, value) {
-            return fieldValue <= value;
-          }
+          field: new Ext.form.TextField({enableKeyEvents: true}),
+          events: ["keyup"],
+          test: "/{0}/"
         }
       },
       {
