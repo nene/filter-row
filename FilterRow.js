@@ -175,20 +175,24 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
     var dataIndex = col.dataIndex;
     var fieldValue = this.getFilterField(col).getValue();
     
-    if (typeof test.call === "function") {
+    if (test && typeof test.call === "function") {
       return function(r) {
         return test.call(undefined, fieldValue, r.get(dataIndex));
       };
     }
     else if (typeof test === "string") {
-      var regex = this.createRegExp(test, fieldValue);
-      return function(r) {
-        return regex.test(r.get(dataIndex));
-      };
+      return this.createRegExpPredicate(test, fieldValue, dataIndex);
     }
     else {
-      return function(a, b) { return a === b; };
+      return this.createRegExpPredicate("/^{0}/i", fieldValue, dataIndex);
     }
+  },
+  
+  createRegExpPredicate: function(reString, fieldValue, dataIndex) {
+    var regex = this.createRegExp(reString, fieldValue);
+    return function(r) {
+      return regex.test(r.get(dataIndex));
+    };
   },
   
   // Given string "/^{0}/i" and value "foo" creates regex: /^foo/i

@@ -50,8 +50,7 @@ Ext.onReady(function() {
         dataIndex: 'company',
         filter: {
           field: new Ext.form.TextField({enableKeyEvents: true}),
-          events: ["keyup"],
-          test: "/^{0}/i"
+          events: ["keyup"]
         }
       },
       {
