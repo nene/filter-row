@@ -211,7 +211,9 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
 Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
   /**
    * @cfg {Ext.form.Field} field
-   * A field to use for filtering.  Defaults to simple TextField.
+   * Instance of some form field to use for filtering, or just a
+   * config object - xtype will default to "textfield".  Defaults to
+   * simple TextField.
    */
   field: undefined,
   
@@ -235,6 +237,9 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
     
     if (!this.field) {
       this.field = new Ext.form.TextField();
+    }
+    else if (!(this.field instanceof Ext.form.Field)) {
+      this.field = Ext.create(this.field, "textfield");
     }
     
     this.addEvents(

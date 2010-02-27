@@ -49,7 +49,7 @@ Ext.onReady(function() {
         sortable: true,
         dataIndex: 'company',
         filter: {
-          field: new Ext.form.TextField({enableKeyEvents: true}),
+          field: {enableKeyEvents: true},
           events: ["keyup"],
           test: "/{0}/i"
         }
@@ -61,7 +61,7 @@ Ext.onReady(function() {
         renderer: 'usMoney',
         dataIndex: 'price',
         filter: {
-          field: new Ext.form.TextField({enableKeyEvents: true}),
+          field: {enableKeyEvents: true},
           events: ["keyup"]
           // test defaults to "/^{0}/i/"
         }
@@ -72,7 +72,8 @@ Ext.onReady(function() {
         sortable: true,
         dataIndex: 'change',
         filter: {
-          field: new Ext.form.ComboBox({
+          field: {
+            xtype: "combo",
             mode: 'local',
             store: new Ext.data.ArrayStore({
               id: 0,
@@ -85,7 +86,7 @@ Ext.onReady(function() {
             displayField: 'value',
             triggerAction: 'all',
             value: "-"
-          }),
+          },
           events: ["select"],
           test: function(filterValue, value) {
             return filterValue === "-" || filterValue === value;
