@@ -175,14 +175,20 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
     var dataIndex = col.dataIndex;
     var filterValue = this.getFilterField(col).getValue();
     
-    if (test && typeof test.call === "function") {
+    // is test a regex string?
+    if (typeof test === "string" && test.match(/^\/.*\/[img]*$/)) {
+      return this.createRegExpPredicate(test, filterValue, dataIndex);
+    }
+    
+    // is test something callable?
+    // (to allow duck typing, don't check if 'test' is a function)
+    else if (test && typeof test.call === "function") {
       return function(r) {
         return test.call(undefined, filterValue, r.get(dataIndex));
       };
     }
-    else if (typeof test === "string") {
-      return this.createRegExpPredicate(test, filterValue, dataIndex);
-    }
+    
+    // default to simple regex test
     else {
       return this.createRegExpPredicate("/^{0}/i", filterValue, dataIndex);
     }
