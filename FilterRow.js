@@ -140,8 +140,6 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   // Creates store filtering function by combining
   // all "test" predicates.
   createFilter: function() {
-    var predicateFactory = Ext.ux.grid.FilterRowPredicateFactory;
-    
     var tests = [];
     this.eachFilterColumn(function(col) {
       var p = col.filter.createPredicate(col.dataIndex);
