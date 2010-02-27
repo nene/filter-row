@@ -21,13 +21,22 @@ Ext.namespace('Ext.ux.grid');
  * <pre><code>
     columns: [
       {
-        header: 'Company',
-        width: 160,
-        dataIndex: 'company',
+        header: 'Name',
+        dataIndex: 'name',
+        // Filter by regular expression
+        // {0} will be substituted with current field value
         filter: {
-          field: new Ext.form.TextField({enableKeyEvents: true}),
-          events: ["keyup"],
-          test: "^/{0}/i"
+          test: "/{0}/i"
+        }
+      },
+      {
+        header: 'Age',
+        dataIndex: 'age',
+        filter: {
+          // Show larger ages than the one entered to field
+          test: function(filterValue, value) {
+            return value > filterValue;
+          }
         }
       },
       ...
