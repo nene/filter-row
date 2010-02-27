@@ -189,6 +189,11 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   },
   
   createRegExpPredicate: function(reString, filterValue, dataIndex) {
+    // don't filter the column at all when field is empty
+    if (filterValue === "") {
+      return false;
+    }
+    
     var regex = this.createRegExp(reString, filterValue);
     return function(r) {
       return regex.test(r.get(dataIndex));

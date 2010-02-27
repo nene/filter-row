@@ -62,7 +62,7 @@ Ext.onReady(function() {
         filter: {
           field: new Ext.form.TextField({enableKeyEvents: true}),
           events: ["keyup"],
-          test: "/{0}/"
+          test: "/^{0}.?\.[0-9]+$/"
         }
       },
       {
