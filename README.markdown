@@ -106,7 +106,7 @@ This is not one man's work
 Changelog
 ---------
 
-* Development version
+* 0.3 version
   * Greatly simplified the creation of filters.  The logic for each
     filter is now defined separately and combined automatically.
     Actually, often the logic doesn't even need to be defined, just

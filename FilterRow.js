@@ -1,5 +1,5 @@
 /*!
- * Ext JS FilterRow plugin v0.2
+ * Ext JS FilterRow plugin v0.3
  * http://github.com/nene/filter-row
  *
  * Copyright 2010 Rene Saarsoo
