@@ -50,7 +50,8 @@ Ext.onReady(function() {
         dataIndex: 'company',
         filter: {
           field: new Ext.form.TextField({enableKeyEvents: true}),
-          events: ["keyup"]
+          events: ["keyup"],
+          test: "/{0}/i"
         }
       },
       {
@@ -61,8 +62,8 @@ Ext.onReady(function() {
         dataIndex: 'price',
         filter: {
           field: new Ext.form.TextField({enableKeyEvents: true}),
-          events: ["keyup"],
-          test: "/^{0}.?\.[0-9]+$/"
+          events: ["keyup"]
+          // test defaults to "/^{0}/i/"
         }
       },
       {
