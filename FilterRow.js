@@ -19,28 +19,31 @@ Ext.namespace('Ext.ux.grid');
  * <p>Example:
  * 
  * <pre><code>
-    columns: [
-      {
-        header: 'Name',
-        dataIndex: 'name',
-        // Filter by regular expression
-        // {0} will be substituted with current field value
-        filter: {
-          test: "/{0}/i"
+var grid = new Ext.grid.GridPanel({
+  columns: [
+    {
+      header: 'Name',
+      dataIndex: 'name',
+      // Filter by regular expression
+      // {0} will be substituted with current field value
+      filter: {
+        test: "/{0}/i"
+      }
+    },
+    {
+      header: 'Age',
+      dataIndex: 'age',
+      filter: {
+        // Show larger ages than the one entered to field
+        test: function(filterValue, value) {
+          return value > filterValue;
         }
-      },
-      {
-        header: 'Age',
-        dataIndex: 'age',
-        filter: {
-          // Show larger ages than the one entered to field
-          test: function(filterValue, value) {
-            return value > filterValue;
-          }
-        }
-      },
-      ...
-    ]
+      }
+    }
+  ],
+  plugins: ["filterrow"],
+  ...
+});
  * </code></pre>
  */
 Ext.ux.grid.FilterRow = Ext.extend(Object, {
