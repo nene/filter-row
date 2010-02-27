@@ -90,7 +90,7 @@ Ext.onReady(function() {
         }
       }
     ],
-    plugins: [new Ext.ux.grid.FilterRow()],
+    plugins: ["filterrow"],
     stripeRows: true,
     autoExpandColumn: 'company',
     height: 350,

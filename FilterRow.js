@@ -199,6 +199,7 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
     Ext.each(this.grid.getColumnModel().config, func, this);
   }
 });
+Ext.preg("filterrow", Ext.ux.grid.FilterRow);
 
 /**
  * @class Ext.ux.grid.FilterRowFilter
