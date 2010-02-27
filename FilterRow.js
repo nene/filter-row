@@ -229,7 +229,17 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
   
   /**
    * @cfg {String/Function} test
-   * Determines how this column is filtered. Defaults to "/^{0}/i".
+   * Determines how this column is filtered.
+   * 
+   * <p>When it's a string like "/^{0}/i", a regular expression filter
+   * is created - substituting "{0}" with current value from field.
+   * 
+   * <p>When it's a function, it will be called with two arguments:
+   * filterValue (the current value of field) and value (the value
+   * from record at dataIndex).  When function returns true, the row
+   * will be filtered in, otherwise excluded from grid view.
+   * 
+   * <p>Defaults to "/^{0}/i".
    */
   test: "/^{0}/i",
   
