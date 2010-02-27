@@ -49,8 +49,6 @@ Ext.onReady(function() {
         sortable: true,
         dataIndex: 'company',
         filter: {
-          field: {enableKeyEvents: true},
-          events: ["keyup"],
           test: "/{0}/i"
         }
       },
@@ -61,8 +59,6 @@ Ext.onReady(function() {
         renderer: 'usMoney',
         dataIndex: 'price',
         filter: {
-          field: {enableKeyEvents: true},
-          events: ["keyup"]
           // test defaults to "/^{0}/i/"
         }
       },

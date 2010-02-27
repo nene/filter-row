@@ -213,18 +213,19 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
    * @cfg {Ext.form.Field} field
    * Instance of some form field to use for filtering, or just a
    * config object - xtype will default to "textfield".  Defaults to
-   * simple TextField.
+   * TextField with enableKeyEvents set to true.
    */
   field: undefined,
   
   /**
    * @cfg {[String]} events
+   * 
    * Names of events to listen from this field.  Each time one of the
-   * events is heard, FilterRow will filter the grid.  (By default it
-   * contains the "change" event, which should be implemented by all
-   * Ext.form.Field descendants.)
+   * events is heard, FilterRow will filter the grid.  By default it
+   * contains the "keyup" event to provide useful default together with
+   * the default TextField.
    */
-  events: ["change"],
+  events: ["keyup"],
   
   /**
    * @cfg {String/Function} test
@@ -236,7 +237,7 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
     Ext.apply(this, config);
     
     if (!this.field) {
-      this.field = new Ext.form.TextField();
+      this.field = new Ext.form.TextField({enableKeyEvents: true});
     }
     else if (!(this.field instanceof Ext.form.Field)) {
       this.field = Ext.create(this.field, "textfield");
