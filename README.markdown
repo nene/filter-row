@@ -2,8 +2,7 @@ Ext.ux.grid.FilterRow
 =====================
 
 Plugin for Ext.grid.GridPanel that places form fields right below grid
-headers, where they can be used for filtering grid contents or
-(haven't really tried that) inserting new data.
+headers, where they can be used for filtering grid contents.
 
 Licensed under [GNU General Public License v3][gpl3].
 
@@ -15,55 +14,86 @@ by first- and last name.  For that we define a GridPanel as always,
 but inside column definitions, we add a special "filter" property,
 that is detected by FilterRow plugin:
 
-    columns: [
-      {
-        id: "fname",
-        dataIndex: "fname"
-        header: "First name",
-        filter: {
-          field: new Ext.form.TextField({enableKeyEvents: true}),
-          events: ["keyup"]
+    var grid = new Ext.grid.GridPanel({
+      store: someStore,
+      columns: [
+        {
+          dataIndex: "fname"
+          header: "First name",
+          filter: {}
+        },
+        {
+          dataIndex: "lname"
+          header: "Last name",
+          filter: {}
         }
-      },
-      {
-        id: "lname",
-        dataIndex: "lname"
-        header: "Last name",
-        filter: {
-          field: new Ext.form.TextField({enableKeyEvents: true}),
-          events: ["keyup"]
-        }
-      },
-      ...
-    ]
-
-Here we define both filters to be TextFields and tell FilterRow to
-listen "keyup" events from them - this will give us nice
-filter-as-you-type functionality.  Also note that we define the "id"
-property for each column with filter.  This is needed to identify the
-column in "change" event listener, which will be called with an object
-that maps column id-s to their current values:
-
-    var filterRow = new Ext.ux.grid.FilterRow();
-    filterRow.on("change", function(filterValues) {
-      var reFName = new RegExp("^"+filterValues.fname);
-      var reLName = new RegExp("^"+filterValues.lname);
-      store.filterBy(function(r) {
-        return reFName.test(r.get("fname")) &&
-               reLName.test(r.get("lname"));
-      });
+      ],
+      plugins: ["filterrow"]
     });
 
-The "change" event handler is crucial - without implementing that the
-FilterRow won't do anything.
+That's it!  Our grid now has a row of editors below its headers and
+the grid is filtered right as you type.
 
-The final thing to do, is add the FilterRow plugin to the grid like
-any other plugin:
+This is the default behaviour, that's because the filter config is
+completely empty.  But we can fill it out to match the particular
+needs of our application.
 
-    plugins: [filterRow],
+### Regex filters
+
+The most useful of the config options is **test:** - it defines the
+logic for filtering the column.  It's default value is `"/^{0}/i"` -
+this looks like a regular expression and it almost is.  It's a
+template for the regular expression that will be used to filter the
+grid.  `{0}` is a placeholder for the value read from the field of our
+filter.  For example when user types in `"Mary"` this template will
+create a regular expression `/^Mary/i`.
+
+If you know regular expressions, it should be pretty obvious now.  But
+for start, here's a filter that is a) case sensitive, and b) matches
+the end instead of beginning:
+
+    filter: {
+      test: "/{0}$/"
+    }
+
+### Filtering functions
+
+But regexes aren't the only option here.  For complete control you can
+declare a function to decide which rows to include and which not:
+
+    filter: {
+      test: function(filterValue, rowValue) {
+        return filterValue <= rowValue;
+      }
+    }
+
+The above example excludes all rows having smaller value than the one
+entered to filter field.
+
+### Different field types
+
+So far we have been using TextFields for filtering, but we can easily
+use others.  This is done through the **field:** config option:
+
+    filter: {
+      field: {
+        xtype: "combo",
+        ... all kind of combo box config ...
+      },
+      events: ["select"],
+    }
+
+Not that in addition to `field:` we also define `events:` - these are
+the events of field which trigger the filtering of grid.  By default
+the events array contains only "keyup" event which works well for
+TextFields, but for other types you might need to specify your own.
+
+This should be enough for introduction.  Read the source for full
+documentation of different config options.
+
 
 A picture speaks a thousand words
-----------------------------------
+---------------------------------
 
 * [Live example][live]
 
@@ -75,6 +105,18 @@ This is not one man's work
 
 Changelog
 ---------
+
+* Development version
+  * Greatly simplified the creation of filters.  The logic for each
+    filter is now defined separately and combined automatically.
+    Actually, often the logic doesn't even need to be defined, just
+    using the defaults might be enough.
+  * Plugin registered with Ext.ComponentMgr as "filterrow".
+  * Each filter is now an instance of FilterRowFilter class.
+  * Filter fields can be specified with config objects.
+  * Column id-s no more required.
+  * Removed "change" event from FilterRow.
+  * Use of FilterRow for anything else than filtering no more supported.
 
 * 0.2 version
   * Filter editors are defined inside grid columns. No more global ID-s.
