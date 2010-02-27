@@ -86,8 +86,8 @@ Ext.onReady(function() {
             value: "-"
           }),
           events: ["select"],
-          test: function(fieldValue, value) {
-            return fieldValue === "-" || fieldValue === value;
+          test: function(filterValue, value) {
+            return filterValue === "-" || filterValue === value;
           }
         }
       }

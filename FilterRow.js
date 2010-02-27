@@ -35,8 +35,8 @@ Ext.namespace('Ext.ux.grid');
         filter: {
           field: new Ext.form.TextField(),
           events: ["keyup", "specialkey"],
-          test: function(fieldValue, value) {
-            return fieldValue === value;
+          test: function(filterValue, value) {
+            return filterValue === value;
           }
         }
       },
@@ -173,23 +173,23 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
     
     var test = col.filter.test;
     var dataIndex = col.dataIndex;
-    var fieldValue = this.getFilterField(col).getValue();
+    var filterValue = this.getFilterField(col).getValue();
     
     if (test && typeof test.call === "function") {
       return function(r) {
-        return test.call(undefined, fieldValue, r.get(dataIndex));
+        return test.call(undefined, filterValue, r.get(dataIndex));
       };
     }
     else if (typeof test === "string") {
-      return this.createRegExpPredicate(test, fieldValue, dataIndex);
+      return this.createRegExpPredicate(test, filterValue, dataIndex);
     }
     else {
-      return this.createRegExpPredicate("/^{0}/i", fieldValue, dataIndex);
+      return this.createRegExpPredicate("/^{0}/i", filterValue, dataIndex);
     }
   },
   
-  createRegExpPredicate: function(reString, fieldValue, dataIndex) {
-    var regex = this.createRegExp(reString, fieldValue);
+  createRegExpPredicate: function(reString, filterValue, dataIndex) {
+    var regex = this.createRegExp(reString, filterValue);
     return function(r) {
       return regex.test(r.get(dataIndex));
     };
