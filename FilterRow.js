@@ -14,17 +14,9 @@ Ext.namespace('Ext.ux.grid');
  * Grid plugin that adds filtering row below grid header.
  * 
  * <p>To add filtering to column, define "filter" property in column
- * config to be an object with the following properties:
+ * to be FilterRowFilter configuration object or an instance of it.
  * 
- * <ul>
- * <li>field - an instance of a form field component.
- * <li>events - array of event names to listen from this field.
- * Each time one of the events is heard, FilterRow will filter the grid.
- * (By default it contains the "change" event, which should be
- * implemented by all Ext.form.Field descendants.)
- * <li>test - regex string or function that determines how this column
- * is filtered. Defaults to "/^{0}/i".
- * </ul>
+ * <p>Example:
  * 
  * <pre><code>
     columns: [
@@ -47,6 +39,15 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
     this.grid = grid;
     var cm = grid.getColumnModel();
     var view = grid.getView();
+    
+    // convert all filter configs to FilterRowFilter instances
+    var Filter = Ext.ux.grid.FilterRowFilter;
+    this.eachFilterColumn(function(col) {
+      if (!(col.filter instanceof Filter)) {
+        col.filter = new Filter(col.filter);
+      }
+      col.filter.on("change", this.onFieldChange, this);
+    });
     
     this.applyTemplate();
     // add class for attatching plugin specific styles
@@ -107,10 +108,10 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   },
   
   onColumnChange: function() {
-    this.eachColumn(function(col) {
-      var editor = this.getFilterField(col);
+    this.eachFilterColumn(function(col) {
+      var editor = col.filter.getField();
       if (editor && editor.rendered) {
-        var el = this.getFilterFieldDom(editor);
+        var el = col.filter.getFieldDom();
         var parentNode = el.parentNode;
         parentNode.removeChild(el);
       }
@@ -119,21 +120,15 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   },
   
   renderFields: function() {
-    this.eachColumn(function(col) {
+    this.eachFilterColumn(function(col) {
       var filterDiv = Ext.get(this.getFilterDivId(col.id));
-      var editor = this.getFilterField(col);
-      if (editor) {
-        editor.setWidth(col.width - 2);
-        if (editor.rendered) {
-          filterDiv.appendChild(this.getFilterFieldDom(editor));
-        }
-        else {
-          Ext.each(col.filter.events || ["change"], function(eventName) {
-            editor.on(eventName, this.onFieldChange, this);
-          }, this);
-          
-          editor.render(filterDiv);
-        }
+      var editor = col.filter.getField();
+      editor.setWidth(col.width - 2);
+      if (editor.rendered) {
+        filterDiv.appendChild(col.filter.getFieldDom());
+      }
+      else {
+        editor.render(filterDiv);
       }
     });
   },
@@ -148,13 +143,10 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
     var predicateFactory = Ext.ux.grid.FilterRowPredicateFactory;
     
     var tests = [];
-    this.eachColumn(function(col) {
-      if (col.filter) {
-        var filterValue = this.getFilterField(col).getValue();
-        var p = predicateFactory.create(col, filterValue);
-        if (p) {
-          tests.push(p);
-        }
+    this.eachFilterColumn(function(col) {
+      var p = col.filter.createPredicate(col.dataIndex);
+      if (p) {
+        tests.push(p);
       }
     });
     
@@ -169,24 +161,25 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   },
   
   onColumnWidthChange: function(cm, colIndex, newWidth) {
-    this.resizeFilterField(cm.getColumnById(cm.getColumnId(colIndex)), newWidth);
+    var col = cm.getColumnById(cm.getColumnId(colIndex));
+    if (col.filter) {
+      this.resizeFilterField(col, newWidth);
+    }
   },
   
   // When grid has forceFit: true, then all columns will be resized
   // when grid resized or column added/removed.
   resizeAllFilterFields: function() {
     var cm = this.grid.getColumnModel();
-    this.eachColumn(function(col, i) {
+    this.eachFilterColumn(function(col, i) {
       this.resizeFilterField(col, cm.getColumnWidth(i));
     });
   },
   
   // Resizes filter field according to the width of column
   resizeFilterField: function(column, newColumnWidth) {
-    var editor = this.getFilterField(column);
-    if (editor) {
-      editor.setWidth(newColumnWidth - 2);
-    }
+    var editor = column.filter.getField();
+    editor.setWidth(newColumnWidth - 2);
   },
   
   // Returns HTML ID of element containing filter div
@@ -194,53 +187,117 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
     return this.grid.id + '-filter-' + columnId;
   },
   
-  // returns filter field of a column
-  getFilterField: function(column) {
-    return column.filter && column.filter.field;
-  },
-  
-  /**
-   * Returns DOM Element that is the root element of form field.
-   * 
-   * For most fields, this will be the "el" property, but TriggerField
-   * and it's descendants will wrap "el" inside another div called
-   * "wrap".
-   * @private
-   */
-  getFilterFieldDom: function(field) {
-    return field.wrap ? field.wrap.dom : field.el.dom;
+  // Iterates over each column that has filter
+  eachFilterColumn: function(func) {
+    this.eachColumn(function(col, i) {
+      if (col.filter) {
+        func.call(this, col, i);
+      }
+    });
   },
   
   // Iterates over each column in column config array
   eachColumn: function(func) {
     Ext.each(this.grid.getColumnModel().config, func, this);
   }
-  
 });
 
-// Helper for creating predicate functions for filtering
-Ext.ux.grid.FilterRowPredicateFactory = {
-  // creates predicate for filtering one column
-  create: function(col, filterValue) {
-    var test = col.filter.test;
-    var dataIndex = col.dataIndex;
+/**
+ * @class Ext.ux.grid.FilterRowFilter
+ * @extends Ext.util.Observable
+ * 
+ * This class encapsulates the definition of filter for one column.
+ */
+Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
+  /**
+   * @cfg {Ext.form.Field} field
+   * A field to use for filtering.  Defaults to simple TextField.
+   */
+  field: undefined,
+  
+  /**
+   * @cfg {[String]} events
+   * Names of events to listen from this field.  Each time one of the
+   * events is heard, FilterRow will filter the grid.  (By default it
+   * contains the "change" event, which should be implemented by all
+   * Ext.form.Field descendants.)
+   */
+  events: ["change"],
+  
+  /**
+   * @cfg {String/Function} test
+   * Determines how this column is filtered. Defaults to "/^{0}/i".
+   */
+  test: "/^{0}/i",
+  
+  constructor: function(config) {
+    Ext.apply(this, config);
+    
+    if (!this.field) {
+      this.field = new Ext.form.TextField();
+    }
+    
+    this.addEvents(
+      /**
+       * @event change
+       * Fired when ever one of the events listed in "events" config
+       * option is fired by field.
+       */
+      "change"
+    );
+    Ext.each(this.events, function(event) {
+      this.field.on(event, this.fireChangeEvent, this);
+    }, this);
+  },
+  
+  fireChangeEvent: function() {
+    this.fireEvent("change");
+  },
+  
+  /**
+   * Returns the field of this filter.
+   * 
+   * @return {Ext.form.Field}
+   */
+  getField: function() {
+    return this.field;
+  },
+  
+  /**
+   * Returns DOM Element that is the root element of form field.
+   * 
+   * <p>For most fields, this will be the "el" property, but
+   * TriggerField and it's descendants will wrap "el" inside another
+   * div called "wrap".
+   * 
+   * @return {HTMLElement}
+   */
+  getFieldDom: function() {
+    return this.field.wrap ? this.field.wrap.dom : this.field.el.dom;
+  },
+  
+  /**
+   * Creates predicate function for filtering the column associated
+   * with this filter.
+   * 
+   * @param {String} dataIndex
+   * @return {Function}
+   */
+  createPredicate: function(dataIndex) {
+    var test = this.test;
+    var filterValue = this.field.getValue();
     
     // is test a regex string?
     if (typeof test === "string" && test.match(/^\/.*\/[img]*$/)) {
       return this.createRegExpPredicate(test, filterValue, dataIndex);
     }
     
-    // is test something callable?
-    // (to allow duck typing, don't check if 'test' is a function)
-    else if (test && typeof test.call === "function") {
+    // otherwise assume it's callable
+    // (to allow duck typing, we use .call method)
+    else {
       return function(r) {
         return test.call(undefined, filterValue, r.get(dataIndex));
       };
-    }
-    
-    // default to simple regex test
-    else {
-      return this.createRegExpPredicate("/^{0}/i", filterValue, dataIndex);
     }
   },
   
@@ -265,7 +322,7 @@ Ext.ux.grid.FilterRowPredicateFactory = {
     // Create new RegExp substituting value inside pattern
     return new RegExp(String.format(pattern, Ext.escapeRe(value)), flags);
   }
-};
+});
 
 
 
