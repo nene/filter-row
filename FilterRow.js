@@ -22,8 +22,8 @@ Ext.namespace('Ext.ux.grid');
  * Each time one of the events is heard, FilterRow will filter the grid.
  * (By default it contains the "change" event, which should be
  * implemented by all Ext.form.Field descendants.)
- * <li>test - predicate function that determines if record should be
- * displayed in grid or not.
+ * <li>test - regex string or function that determines how this column
+ * is filtered. Defaults to "/^{0}/i".
  * </ul>
  * 
  * <pre><code>
@@ -33,11 +33,9 @@ Ext.namespace('Ext.ux.grid');
         width: 160,
         dataIndex: 'company',
         filter: {
-          field: new Ext.form.TextField(),
-          events: ["keyup", "specialkey"],
-          test: function(filterValue, value) {
-            return filterValue === value;
-          }
+          field: new Ext.form.TextField({enableKeyEvents: true}),
+          events: ["keyup"],
+          test: "^/{0}/i"
         }
       },
       ...
