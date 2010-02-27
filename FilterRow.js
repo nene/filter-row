@@ -147,11 +147,16 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   // Creates store filtering function by combining
   // all "test" predicates.
   createFilter: function() {
+    var predicateFactory = Ext.ux.grid.FilterRowPredicateFactory;
+    
     var tests = [];
     this.eachColumn(function(col) {
-      var p = this.createPredicate(col);
-      if (p) {
-        tests.push(p);
+      if (col.filter) {
+        var filterValue = this.getFilterField(col).getValue();
+        var p = predicateFactory.create(col, filterValue);
+        if (p) {
+          tests.push(p);
+        }
       }
     });
     
@@ -163,57 +168,6 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
       }
       return true;
     };
-  },
-  
-  // creates predicate for filtering one column
-  createPredicate: function(col) {
-    if (!col.filter) {
-      return false;
-    }
-    
-    var test = col.filter.test;
-    var dataIndex = col.dataIndex;
-    var filterValue = this.getFilterField(col).getValue();
-    
-    // is test a regex string?
-    if (typeof test === "string" && test.match(/^\/.*\/[img]*$/)) {
-      return this.createRegExpPredicate(test, filterValue, dataIndex);
-    }
-    
-    // is test something callable?
-    // (to allow duck typing, don't check if 'test' is a function)
-    else if (test && typeof test.call === "function") {
-      return function(r) {
-        return test.call(undefined, filterValue, r.get(dataIndex));
-      };
-    }
-    
-    // default to simple regex test
-    else {
-      return this.createRegExpPredicate("/^{0}/i", filterValue, dataIndex);
-    }
-  },
-  
-  createRegExpPredicate: function(reString, filterValue, dataIndex) {
-    // don't filter the column at all when field is empty
-    if (filterValue === "") {
-      return false;
-    }
-    
-    var regex = this.createRegExp(reString, filterValue);
-    return function(r) {
-      return regex.test(r.get(dataIndex));
-    };
-  },
-  
-  // Given string "/^{0}/i" and value "foo" creates regex: /^foo/i
-  createRegExp: function(reString, value) {
-    // parse the reString into pattern and flags
-    var m = reString.match(/^\/(.*)\/([img]*)$/);
-    var pattern = m[1];
-    var flags = m[2];
-    // Create new RegExp substituting value inside pattern
-    return new RegExp(String.format(pattern, Ext.escapeRe(value)), flags);
   },
   
   onColumnWidthChange: function(cm, colIndex, newWidth) {
@@ -265,5 +219,55 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   }
   
 });
+
+// Helper for creating predicate functions for filtering
+Ext.ux.grid.FilterRowPredicateFactory = {
+  // creates predicate for filtering one column
+  create: function(col, filterValue) {
+    var test = col.filter.test;
+    var dataIndex = col.dataIndex;
+    
+    // is test a regex string?
+    if (typeof test === "string" && test.match(/^\/.*\/[img]*$/)) {
+      return this.createRegExpPredicate(test, filterValue, dataIndex);
+    }
+    
+    // is test something callable?
+    // (to allow duck typing, don't check if 'test' is a function)
+    else if (test && typeof test.call === "function") {
+      return function(r) {
+        return test.call(undefined, filterValue, r.get(dataIndex));
+      };
+    }
+    
+    // default to simple regex test
+    else {
+      return this.createRegExpPredicate("/^{0}/i", filterValue, dataIndex);
+    }
+  },
+  
+  createRegExpPredicate: function(reString, filterValue, dataIndex) {
+    // don't filter the column at all when field is empty
+    if (filterValue === "") {
+      return false;
+    }
+    
+    var regex = this.createRegExp(reString, filterValue);
+    return function(r) {
+      return regex.test(r.get(dataIndex));
+    };
+  },
+  
+  // Given string "/^{0}/i" and value "foo" creates regex: /^foo/i
+  createRegExp: function(reString, value) {
+    // parse the reString into pattern and flags
+    var m = reString.match(/^\/(.*)\/([img]*)$/);
+    var pattern = m[1];
+    var flags = m[2];
+    // Create new RegExp substituting value inside pattern
+    return new RegExp(String.format(pattern, Ext.escapeRe(value)), flags);
+  }
+};
+
 
 
