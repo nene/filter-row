@@ -243,6 +243,12 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
    */
   test: "/^{0}/i",
   
+  /**
+   * @cfg {Object} scope
+   * Scope for the test function.
+   */
+  scope: undefined,
+  
   constructor: function(config) {
     Ext.apply(this, config);
     
@@ -307,12 +313,11 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
     if (typeof test === "string" && test.match(/^\/.*\/[img]*$/)) {
       return this.createRegExpPredicate(test, filterValue, dataIndex);
     }
-    
-    // otherwise assume it's callable
-    // (to allow duck typing, we use .call method)
     else {
+      // otherwise assume it's a function
+      var scope = this.scope;
       return function(r) {
-        return test.call(undefined, filterValue, r.get(dataIndex));
+        return test.call(scope, filterValue, r.get(dataIndex));
       };
     }
   },
