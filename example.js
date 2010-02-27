@@ -51,9 +51,7 @@ Ext.onReady(function() {
         filter: {
           field: new Ext.form.TextField({enableKeyEvents: true}),
           events: ["keyup"],
-          test: function(fieldValue, value) {
-            return new RegExp("^"+fieldValue, "i").test(value);
-          }
+          test: "/^{0}/i"
         }
       },
       {

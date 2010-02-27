@@ -147,17 +147,11 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
   // Creates store filtering function by combining
   // all "test" predicates.
   createFilter: function() {
-    var eq = function(a,b){return a===b;};
-    
     var tests = [];
     this.eachColumn(function(col) {
-      if (!col.hidden && col.filter) {
-        var t = col.filter.test || eq;
-        var dataIndex = col.dataIndex;
-        var fieldValue = this.getFilterField(col).getValue();
-        tests.push(function(r){
-          return t(fieldValue, r.get(dataIndex));
-        });
+      var p = this.createPredicate(col);
+      if (p) {
+        tests.push(p);
       }
     });
     
@@ -169,6 +163,42 @@ Ext.ux.grid.FilterRow = Ext.extend(Object, {
       }
       return true;
     };
+  },
+  
+  // creates predicate for filtering one column
+  createPredicate: function(col) {
+    if (!col.filter) {
+      return false;
+    }
+    
+    var test = col.filter.test;
+    var dataIndex = col.dataIndex;
+    var fieldValue = this.getFilterField(col).getValue();
+    
+    if (typeof test.call === "function") {
+      return function(r) {
+        return test.call(undefined, fieldValue, r.get(dataIndex));
+      };
+    }
+    else if (typeof test === "string") {
+      var regex = this.createRegExp(test, fieldValue);
+      return function(r) {
+        return regex.test(r.get(dataIndex));
+      };
+    }
+    else {
+      return function(a, b) { return a === b; };
+    }
+  },
+  
+  // Given string "/^{0}/i" and value "foo" creates regex: /^foo/i
+  createRegExp: function(reString, value) {
+    // parse the reString into pattern and flags
+    var m = reString.match(/^\/(.*)\/([img]*)$/);
+    var pattern = m[1];
+    var flags = m[2];
+    // Create new RegExp substituting value inside pattern
+    return new RegExp(String.format(pattern, Ext.escapeRe(value)), flags);
   },
   
   onColumnWidthChange: function(cm, colIndex, newWidth) {
