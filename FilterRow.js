@@ -58,6 +58,15 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     Ext.apply(this, conf || {});
     
     this.addEvents(
+      /**
+       * @event change
+       * Fired when any one of the fields is changed.
+       * @param {Object} filterValues object containing values of all
+       * filter-fields.  When column has "id" defined, then property
+       * with that ID will hold filter value.  When no "id" defined,
+       * then dataIndexes are used.  That is, you only need to specify
+       * ID-s for columns, when two filters use the same dataIndex.
+       */
       "change"
     );
     if (this.listeners) {
