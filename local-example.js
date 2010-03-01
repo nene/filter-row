@@ -34,7 +34,7 @@ Ext.onReady(function() {
         filter: {
           // find prices greater than filter value
           test: function(filterValue, value) {
-            return value >= filterValue;
+            return +value >= +filterValue;
           }
         }
       },

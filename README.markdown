@@ -124,7 +124,7 @@ This is not one man's work
 Changelog
 ---------
 
-* 0.3.1 version
+* Development version
   * Reintroduced "change" event.
   * Added `autoFilter` config option.
   * Together these can be used to implement some custom filtering
