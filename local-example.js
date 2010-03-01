@@ -72,7 +72,7 @@ Ext.onReady(function() {
     height: 350,
     width: 450,
     title: 'Filtering with local store',
-    renderTo: "grid-container"
+    renderTo: "local-grid-container"
   });
   
 });

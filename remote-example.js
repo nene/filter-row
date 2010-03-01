@@ -11,7 +11,9 @@ Ext.onReady(function() {
     ]
   });
   
-  // filter row with custom filtering logic
+  // Custom filtering with remote store.
+  // Each time filers change, send values of each filter field to
+  // server and reload store with the result.
   var filterRow = new Ext.ux.grid.FilterRow({
     autoFilter: false,
     listeners: {
@@ -60,7 +62,7 @@ Ext.onReady(function() {
     height: 350,
     width: 450,
     title: 'Filtering with remote store',
-    renderTo: "grid-container-2"
+    renderTo: "remote-grid-container"
   });
   
 });
