@@ -2,13 +2,14 @@ Ext.onReady(function() {
   var store = new Ext.data.JsonStore({
     url: "getdata.php",
     root: "rows",
+    baseParams: {limit: 10},
+    autoLoad: true,
     fields: [
       {name: 'company'},
       {name: 'price'},
       {name: 'change'}
     ]
   });
-  store.load({params: {company: "", price: "", change: ""}});
   
   // filter row with custom filtering logic
   var filterRow = new Ext.ux.grid.FilterRow({
@@ -39,6 +40,7 @@ Ext.onReady(function() {
         width: 75,
         sortable: true,
         renderer: 'usMoney',
+        align: "right",
         dataIndex: 'price',
         filter: {
         }

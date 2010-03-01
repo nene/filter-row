@@ -1,43 +1,15 @@
 Ext.onReady(function() {
-  var store = new Ext.data.ArrayStore({
+  var store = new Ext.data.JsonStore({
+    url: "getdata.php",
+    root: "rows",
+    autoLoad: true,
     fields: [
       {name: 'company'},
       {name: 'price'},
       {name: 'change'}
     ]
   });
-  
-  store.loadData([
-    ['3m Co', 71.72, 'up'],
-    ['Alcoa Inc', 29.01, 'down'],
-    ['Altria Group Inc', 83.81, 'up'],
-    ['American Express Company', 52.55, 'up'],
-    ['American International Group, Inc.', 64.13, 'none'],
-    ['AT&T Inc.', 31.61, 'up'],
-    ['Boeing Co.', 75.43, 'up'],
-    ['Caterpillar Inc.', 67.27, 'up'],
-    ['Citigroup, Inc.', 49.37, 'down'],
-    ['E.I. du Pont de Nemours and Company', 40.48, 'down'],
-    ['Exxon Mobil Corp', 68.1, 'up'],
-    ['General Electric Company', 34.14, 'up'],
-    ['General Motors Corporation', 30.27, 'up'],
-    ['Hewlett-Packard Co.', 36.53, 'none'],
-    ['Honeywell Intl Inc', 38.77, 'down'],
-    ['Intel Corporation', 19.88, 'down'],
-    ['International Business Machines', 81.41, 'none'],
-    ['Johnson & Johnson', 64.72, 'none'],
-    ['JP Morgan & Chase & Co', 45.73, 'down'],
-    ['McDonald\'s Corporation', 36.76, 'up'],
-    ['Merck & Co.,  Inc.', 40.96, 'none'],
-    ['Microsoft Corporation', 25.84, 'down'],
-    ['Pfizer Inc', 27.96, 'down'],
-    ['The Coca-Cola Company', 45.07, 'up'],
-    ['The Home Depot,  Inc.', 34.64, 'down'],
-    ['The Procter & Gamble Company', 61.91, 'up'],
-    ['United Technologies Corporation', 63.26, 'none'],
-    ['Verizon Communications', 35.57, 'up'],
-    ['Wal-Mart Stores, Inc.', 45.45, 'down']
-  ]);
+  store.load();
   
   var grid = new Ext.grid.GridPanel({
     store: store,
@@ -49,7 +21,7 @@ Ext.onReady(function() {
         sortable: true,
         dataIndex: 'company',
         filter: {
-          test: "/{0}/i"
+          // test defaults to "/^{0}/i/"
         }
       },
       {
@@ -57,9 +29,13 @@ Ext.onReady(function() {
         width: 75,
         sortable: true,
         renderer: 'usMoney',
+        align: "right",
         dataIndex: 'price',
         filter: {
-          // test defaults to "/^{0}/i/"
+          // find prices greater than filter value
+          test: function(filterValue, value) {
+            return value >= filterValue;
+          }
         }
       },
       {
@@ -95,7 +71,7 @@ Ext.onReady(function() {
     autoExpandColumn: 'company',
     height: 350,
     width: 450,
-    title: 'Grid with RowFilter plugin',
+    title: 'Filtering with local store',
     renderTo: "grid-container"
   });
   
