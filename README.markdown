@@ -88,6 +88,24 @@ the events of field which trigger the filtering of grid.  By default
 the events array contains only "keyup" event which works well for
 TextFields, but for other types you might need to specify your own.
 
+### Full control
+
+Finally you can take full control of the filtering process by setting
+the `autoFilter: false` and implementing handler for the "change"
+event.  For example, to perform the filtering on the server side, you
+might configure the plugin like this:
+
+    var filterRow = new Ext.ux.grid.FilterRow({
+      autoFilter: false,
+      listeners: {
+        change: function(data) {
+          store.load({
+            params: data
+          });
+        }
+      }
+    });
+
 This should be enough for introduction.  Read the source for full
 documentation of different config options.
 
@@ -105,6 +123,12 @@ This is not one man's work
 
 Changelog
 ---------
+
+* Development version
+  * Reintroduced "change" event.
+  * Added `autoFilter` config option.
+  * Together these can be used to implement some custom filtering
+    schema, for example filtering of a remote store.
 
 * 0.3 version
   * Greatly simplified the creation of filters.  The logic for each
