@@ -178,7 +178,7 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     }
     
     if (this.autoFilter) {
-      this.grid.getStore().filterBy(this.createFilter());
+      this.grid.getStore().filterBy(this.getFilterFunction());
     }
   },
   
@@ -195,9 +195,13 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     return data;
   },
   
-  // Creates store filtering function by combining
-  // all "test" predicates.
-  createFilter: function() {
+  /**
+   * Returns store filtering function for the current values in filter
+   * fields.
+   * 
+   * @return {Function}  function to use with store.filterBy()
+   */
+  getFilterFunction: function() {
     var tests = [];
     this.eachFilterColumn(function(col) {
       var p = col.filter.createPredicate(col.dataIndex);
