@@ -114,6 +114,33 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     
     // When column hidden or shown
     cm.on("hiddenchange", this.onColumnHiddenChange, this);
+    
+    if (this.autoFilter) {
+      this.respectStoreFilter();
+    }
+  },
+  
+  // Makes store add() and load() methods to respect filtering.
+  respectStoreFilter: function() {
+    var store = this.grid.getStore();
+    
+    // re-apply filter after store load
+    store.on("load", this.refilter, this);
+    
+    // wrap the .add() method of the store:
+    // Before adding clear the filter, afterwards reapply it
+    var filterRow = this;
+    var oldAdd = store.add;
+    store.add = function() {
+      if (this.isFiltered()) {
+        this.clearFilter();
+        oldAdd.apply(this, arguments);
+        filterRow.refilter();
+      }
+      else {
+        oldAdd.apply(this, arguments);
+      }
+    };
   },
   
   onColumnHiddenChange: function(cm, colIndex, hidden) {
@@ -180,6 +207,11 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     if (this.autoFilter) {
       this.grid.getStore().filterBy(this.getFilterFunction());
     }
+  },
+  
+  // refilters the store with current filter.
+  refilter: function() {
+    this.grid.getStore().filterBy(this.getFilterFunction());
   },
   
   // collects values from all filter-fields into hash that maps column
