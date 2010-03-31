@@ -80,13 +80,14 @@ use others.  This is done through the **field:** config option:
         xtype: "combo",
         ... all kind of combo box config ...
       },
-      events: ["select"],
+      fieldEvents: ["select"],
     }
 
-Not that in addition to `field:` we also define `events:` - these are
-the events of field which trigger the filtering of grid.  By default
-the events array contains only "keyup" event which works well for
-TextFields, but for other types you might need to specify your own.
+Not that in addition to `field:` we also define `fieldEvents:` - these
+are the events of field which trigger the filtering of grid.  By
+default the events array contains only "keyup" event which works well
+for TextFields, but for other types you might need to specify your
+own.
 
 ### Full control
 
@@ -124,6 +125,15 @@ This is not one man's work
 Changelog
 ---------
 
+* 0.4 version
+  * Renamed `events` config option to `fieldEvents`.  Use of the
+    property name "events" on an object that inherits from
+    Ext.util.Observable was a serious mistake.
+  * When store is reloaded or data is added with add(), addSorted(),
+    or insert() methods, the store will automatically reapply its
+    filter. (This only applies when `autoFilter` config option is
+    true, which it is by default).
+  
 * 0.3.1 version
   * Reintroduced "change" event.
   * Added `autoFilter` config option.
