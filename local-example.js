@@ -63,7 +63,7 @@ Ext.onReady(function() {
             triggerAction: 'all',
             value: "-"
           },
-          events: ["select"],
+          fieldEvents: ["select"],
           test: function(filterValue, value) {
             return filterValue === "-" || filterValue === value;
           }

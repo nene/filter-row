@@ -311,14 +311,14 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
   field: undefined,
   
   /**
-   * @cfg {[String]} events
+   * @cfg {[String]} fieldEvents
    * 
    * Names of events to listen from this field.  Each time one of the
    * events is heard, FilterRow will filter the grid.  By default it
    * contains the "keyup" event to provide useful default together with
    * the default TextField.
    */
-  events: ["keyup"],
+  fieldEvents: ["keyup"],
   
   /**
    * @cfg {String/Function} test
@@ -360,7 +360,7 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
        */
       "change"
     );
-    Ext.each(this.events, function(event) {
+    Ext.each(this.fieldEvents, function(event) {
       this.field.on(event, this.fireChangeEvent, this);
     }, this);
   },
