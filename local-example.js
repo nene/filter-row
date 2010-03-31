@@ -9,7 +9,8 @@ Ext.onReady(function() {
     url: "getdata.php",
     root: "rows",
     autoLoad: true,
-    fields: Company
+    fields: Company,
+    sortInfo: {field: "company", direction: 'ASC'}
   });
   store.load();
   
@@ -87,7 +88,7 @@ Ext.onReady(function() {
       {
         text: "Add",
         handler: function() {
-          store.add(new Company({
+          store.addSorted(new Company({
             company: "Google Inc",
             price: 150.7,
             change: "up"

@@ -127,20 +127,20 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     // re-apply filter after store load
     store.on("load", this.refilter, this);
     
-    // wrap the .add() method of the store:
-    // Before adding clear the filter, afterwards reapply it
+    // re-apply filter after adding stuff to store
+    this.refilterAfter(store, "add");
+    this.refilterAfter(store, "addSorted");
+    this.refilterAfter(store, "insert");
+  },
+  
+  // Appends refiltering action to after store method
+  refilterAfter: function(store, method) {
     var filterRow = this;
-    var oldAdd = store.add;
-    store.add = function() {
+    store[method] = store[method].createSequence(function() {
       if (this.isFiltered()) {
-        this.clearFilter();
-        oldAdd.apply(this, arguments);
         filterRow.refilter();
       }
-      else {
-        oldAdd.apply(this, arguments);
-      }
-    };
+    });
   },
   
   onColumnHiddenChange: function(cm, colIndex, hidden) {
