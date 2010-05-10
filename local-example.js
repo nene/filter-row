@@ -29,7 +29,9 @@ Ext.onReady(function() {
         sortable: true,
         dataIndex: 'company',
         filter: {
-          // test defaults to "/^{0}/i/"
+          // Filter by string beginnings,
+          // the default is to filter by occurance ("/{0}/i")
+          test: "/^{0}/i"
         }
       },
       {

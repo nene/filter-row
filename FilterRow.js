@@ -338,9 +338,9 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
    * from record at dataIndex).  When function returns true, the row
    * will be filtered in, otherwise excluded from grid view.
    * 
-   * <p>Defaults to "/^{0}/i".
+   * <p>Defaults to "/{0}/i".
    */
-  test: "/^{0}/i",
+  test: "/{0}/i",
   
   /**
    * @cfg {Object} scope
