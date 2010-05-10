@@ -14,7 +14,10 @@ Ext.onReady(function() {
   });
   store.load();
   
-  var filterRow = new Ext.ux.grid.FilterRow();
+  var filterRow = new Ext.ux.grid.FilterRow({
+    // automatically refilter store when records are added
+    refilterOnStoreUpdate: true
+  });
   
   var grid = new Ext.grid.GridPanel({
     store: store,

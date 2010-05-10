@@ -54,6 +54,12 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
    */
   autoFilter: true,
   
+  /**
+   * @cfg {Boolean} refilterOnStoreUpdate
+   * true to refilter store when records added/removed. (default false)
+   */
+  refilterOnStoreUpdate: false,
+  
   constructor: function(conf) {
     Ext.apply(this, conf || {});
     
@@ -115,7 +121,7 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     // When column hidden or shown
     cm.on("hiddenchange", this.onColumnHiddenChange, this);
     
-    if (this.autoFilter) {
+    if (this.refilterOnStoreUpdate) {
       this.respectStoreFilter();
     }
   },
