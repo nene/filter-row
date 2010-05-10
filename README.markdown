@@ -41,19 +41,19 @@ needs of our application.
 ### Regex filters
 
 The most useful of the config options is **test:** - it defines the
-logic for filtering the column.  It's default value is `"/^{0}/i"` -
+logic for filtering the column.  It's default value is `"/{0}/i"` -
 this looks like a regular expression and it almost is.  It's a
 template for the regular expression that will be used to filter the
 grid.  `{0}` is a placeholder for the value read from the field of our
 filter.  For example when user types in `"Mary"` this template will
-create a regular expression `/^Mary/i`.
+create a regular expression `/Mary/i`.
 
 If you know regular expressions, it should be pretty obvious now.  But
 for start, here's a filter that is a) case sensitive, and b) matches
-the end instead of beginning:
+the beginning, instead of any part of the string:
 
     filter: {
-      test: "/{0}$/"
+      test: "/^{0}/"
     }
 
 ### Filtering functions
@@ -83,7 +83,7 @@ use others.  This is done through the **field:** config option:
       fieldEvents: ["select"],
     }
 
-Not that in addition to `field:` we also define `fieldEvents:` - these
+Note that in addition to `field:` we also define `fieldEvents:` - these
 are the events of field which trigger the filtering of grid.  By
 default the events array contains only "keyup" event which works well
 for TextFields, but for other types you might need to specify your
@@ -121,9 +121,23 @@ This is not one man's work
 
 * Based on [durlabh's code from ExtJS forum][post].
 * Thanks to [Saneth][saneth] for patch on better look.
+* Thanks to [Jüri Tarkpea][jyri] for the idea of using magnifier-glass
+  image inside filter fields.
 
 Changelog
 ---------
+
+* Current beta
+  * The default test is now `"/{0}/i"` instead of `"/^{0}/i"` -
+    that's more generic and in my experience more often needed.
+  * By default all filter fields now contain a magnifier-glass icon.
+    This can be turned off per field using the `showFilterIcon`
+    option.
+  * Test function receives additional third argument - the record.
+  * Automatic refiltering is now off by default. It caused too many
+    problems. If you want, you can enable it by setting
+    `refilterOnStoreUpdate: true`.
+  * Fixed bug with grids that aren't immediately rendered.
 
 * 0.4 version
   * Renamed `events` config option to `fieldEvents`.  Use of the
@@ -170,4 +184,4 @@ Changelog
 [post]: http://www.extjs.net/forum/showthread.php?t=55730
 [saneth]: http://www.extjs.net/forum/showthread.php?p=438457#post438457
 [live]: http://triin.net/temp/filter-row/
-
+[jyri]: http://tarkpea.tumblr.com/
