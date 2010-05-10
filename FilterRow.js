@@ -426,7 +426,7 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
   
   createRegExpPredicate: function(reString, filterValue, dataIndex) {
     // don't filter the column at all when field is empty
-    if (filterValue === "") {
+    if (!filterValue) {
       return false;
     }
     
