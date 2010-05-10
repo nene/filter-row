@@ -53,6 +53,8 @@ Ext.onReady(function() {
         sortable: true,
         dataIndex: 'change',
         filter: {
+          // hide filtering icon, just to demonstrate the possibility
+          showFilterIcon: false
         }
       }
     ],

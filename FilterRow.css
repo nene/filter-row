@@ -5,3 +5,9 @@
 .filter-row-grid .filter-row-header {
     height: 26px;
 }
+
+tr.filter-row-header .filter-row-icon input {
+    background-image: url(filter-row-icon.png);
+    background-repeat: no-repeat;
+    padding-left: 16px;
+}

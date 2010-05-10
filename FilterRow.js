@@ -162,7 +162,8 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     this.eachColumn(function(col) {
       var filterDivId = this.getFilterDivId(col.id);
       var style = col.hidden ? " style='display:none'" : "";
-      colTpl += '<td' + style + '><div class="x-small-editor" id="' + filterDivId + '"></div></td>';
+      var icon = (col.filter && col.filter.showFilterIcon) ? "filter-row-icon" : "";
+      colTpl += '<td' + style + '><div class="x-small-editor ' + icon + '" id="' + filterDivId + '"></div></td>';
     });
     
     var headerTpl = new Ext.Template(
@@ -347,6 +348,13 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
    * Scope for the test function.
    */
   scope: undefined,
+  
+  /**
+   * @cfg {Boolean} showFilterIcon
+   * By default a magnifier-glass icon is shown inside filter field.
+   * Set this to false, to disable that behaviour. (Default is true.)
+   */
+  showFilterIcon: true,
   
   constructor: function(config) {
     Ext.apply(this, config);
