@@ -43,7 +43,7 @@ Ext.onReady(function() {
         dataIndex: 'price',
         filter: {
           // find prices greater than filter value
-          test: function(filterValue, value) {
+          test: function(filterValue, value, record) {
             return +value >= +filterValue;
           }
         }
@@ -70,7 +70,7 @@ Ext.onReady(function() {
             value: "-"
           },
           fieldEvents: ["select"],
-          test: function(filterValue, value) {
+          test: function(filterValue, value, record) {
             return filterValue === "-" || filterValue === value;
           }
         }

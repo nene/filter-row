@@ -334,10 +334,16 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
    * <p>When it's a string like "/^{0}/i", a regular expression filter
    * is created - substituting "{0}" with current value from field.
    * 
-   * <p>When it's a function, it will be called with two arguments:
-   * filterValue (the current value of field) and value (the value
-   * from record at dataIndex).  When function returns true, the row
-   * will be filtered in, otherwise excluded from grid view.
+   * <p>When it's a function, it will be called with three arguments:
+   * 
+   * <ul>
+   * <li>filterValue - the current value of field,
+   * <li>value - the value from record at dataIndex,
+   * <li>record - the record object itself.
+   * </ul>
+   * 
+   * <p>When function returns true, the row will be filtered in,
+   * otherwise excluded from grid view.
    * 
    * <p>Defaults to "/{0}/i".
    */
@@ -433,7 +439,7 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
       // otherwise assume it's a function
       var scope = this.scope;
       return function(r) {
-        return test.call(scope, filterValue, r.get(dataIndex));
+        return test.call(scope, filterValue, r.get(dataIndex), r);
       };
     }
   },
