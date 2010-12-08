@@ -128,6 +128,7 @@ Changelog
 ---------
 
 * Current beta
+  * Now working with ExtJS 3.3.
   * The default test is now `"/{0}/i"` instead of `"/^{0}/i"` -
     that's more generic and in my experience more often needed.
   * By default all filter fields now contain a magnifier-glass icon.
@@ -147,7 +148,7 @@ Changelog
     or insert() methods, the store will automatically reapply its
     filter. (This only applies when `autoFilter` config option is
     true, which it is by default).
-  
+
 * 0.3.1 version
   * Reintroduced "change" event.
   * Added `autoFilter` config option.
