@@ -123,6 +123,8 @@ This is not one man's work
 * Thanks to [Saneth][saneth] for patch on better look.
 * Thanks to [Jüri Tarkpea][jyri] for the idea of using magnifier-glass
   image inside filter fields.
+* Thanks to [shivaaqua][shivaaqua] for help in making FilterRow work
+  with ExtJS 3.3.
 
 Changelog
 ---------
@@ -186,3 +188,4 @@ Changelog
 [saneth]: http://www.extjs.net/forum/showthread.php?p=438457#post438457
 [live]: http://triin.net/temp/filter-row/
 [jyri]: http://tarkpea.tumblr.com/
+[shivaaqua]: https://github.com/nene/filter-row/issues/closed#issue/1/comment/485585
