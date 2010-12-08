@@ -129,7 +129,7 @@ This is not one man's work
 Changelog
 ---------
 
-* Current beta
+* 0.5 version
   * Now working with ExtJS 3.3.
   * The default test is now `"/{0}/i"` instead of `"/^{0}/i"` -
     that's more generic and in my experience more often needed.
