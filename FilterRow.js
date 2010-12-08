@@ -101,6 +101,13 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     // when grid initially rendered
     grid.on("render", this.renderFields, this);
     
+    // From Ext 3.3 onwards grid headers are also refreshed when store
+    // is filtered/sorted/etc (anything that fires "datachanged").
+    // So after each grid refresh we re-render all the fields and
+    // focus the field that was previously focused.
+    view.on("beforerefresh", this.rememberFocusedField, this);
+    view.on("refresh", this.renderFields, this);
+    
     // when Ext grid state restored (untested)
     grid.on("staterestore", this.onColumnChange, this);
     
@@ -192,6 +199,15 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     this.applyTemplate();
   },
   
+  rememberFocusedField: function() {
+    this.focusedField = false;
+    this.eachFilterColumn(function(col) {
+      if (col.filter.hasFocus()) {
+        this.focusedField = col.filter;
+      }
+    });
+  },
+  
   renderFields: function() {
     this.eachFilterColumn(function(col) {
       var filterDiv = Ext.get(this.getFilterDivId(col.id));
@@ -204,6 +220,7 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
         editor.render(filterDiv);
       }
     });
+    this.focusedField && this.focusedField.focus();
   },
   
   onFieldChange: function() {
@@ -383,6 +400,11 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
     Ext.each(this.fieldEvents, function(event) {
       this.field.on(event, this.fireChangeEvent, this);
     }, this);
+    
+    // We can't ask directly from Ext.form.Field if it has focus, so
+    // we monitor focus and blur events to keep track of it.
+    this.field.on("focus", this.onFocus, this);
+    this.field.on("blur", this.onBlur, this);
   },
   
   fireChangeEvent: function() {
@@ -464,6 +486,28 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
     var flags = m[2];
     // Create new RegExp substituting value inside pattern
     return new RegExp(String.format(pattern, Ext.escapeRe(value)), flags);
+  },
+  
+  onFocus: function() {
+    this.focused = true;
+  },
+  
+  onBlur: function() {
+    this.focused = false;
+  },
+  
+  /**
+   * True when field is currently focused.
+   */
+  hasFocus: function() {
+    return this.focused;
+  },
+  
+  /**
+   * Focuses the field of filter.
+   */
+  focus: function() {
+    this.field.focus();
   }
 });
 
