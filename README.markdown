@@ -129,6 +129,9 @@ This is not one man's work
 Changelog
 ---------
 
+* Current Beta
+  * Fixed bug with comboboxes in FilterRow not working in IE.
+  * Fixed bug with renaming column headers.
 * 0.5 version
   * Now working with ExtJS 3.3.
   * The default test is now `"/{0}/i"` instead of `"/^{0}/i"` -
