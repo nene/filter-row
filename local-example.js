@@ -103,5 +103,10 @@ Ext.onReady(function() {
     ]
   });
   
+  // For testing that column header renaming works
+  document.getElementById("button").onclick = function() {
+    grid.getColumnModel().setColumnHeader(1, "Hello");
+  };
+  
 });
 

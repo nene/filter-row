@@ -117,7 +117,7 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     grid.on("render", this.renderFields, this);
     
     // when Ext grid state restored (untested)
-    grid.on("staterestore", this.onColumnChange, this);
+    grid.on("staterestore", this.resetFilterRow, this);
     
     // when the width of the whole grid changed
     grid.on("resize", this.resizeAllFilterFields, this);
@@ -129,9 +129,13 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
       this.onColumnWidthChange(this.grid.getColumnModel(), colIndex, parseInt(newWidth, 10));
     }, this);
     
-    // before column is moved, remove fields, after the move add them back
-    cm.on("columnmoved", this.onColumnChange, this);
+    // when column is moved, remove fields, after the move add them back
+    cm.on("columnmoved", this.resetFilterRow, this);
     view.afterMove = view.afterMove.createSequence(this.renderFields, this);
+    
+    // when column header is renamed, remove fields, afterwards add them back
+    cm.on("headerchange", this.resetFilterRow, this);
+    view.onHeaderChange = view.onHeaderChange.createSequence(this.renderFields, this);
     
     // When column hidden or shown
     cm.on("hiddenchange", this.onColumnHiddenChange, this);
@@ -195,13 +199,15 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     view.templates.header = headerTpl;
   },
   
-  onColumnChange: function() {
+  // Removes filter fields from grid header and recreates
+  // template. The latter is needed in case columns have been
+  // reordered.
+  resetFilterRow: function() {
     this.eachFilterColumn(function(col) {
       var editor = col.filter.getField();
       if (editor && editor.rendered) {
         var el = col.filter.getFieldDom();
-        var parentNode = el.parentNode;
-        parentNode.removeChild(el);
+        el.parentNode.removeChild(el);
       }
     });
     this.applyTemplate();
