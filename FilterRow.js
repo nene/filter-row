@@ -85,6 +85,21 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     var cm = grid.getColumnModel();
     var view = grid.getView();
     
+    // For some reason GridView was changed in Ext 3.3 to completely
+    // re-render grid header on store "datachanged" event (which is
+    // fired after each loading/filtering/sorting).  Because this
+    // re-rendering seems completely unnecessary and coding around it
+    // quite hard (each time user types a character into field we have
+    // to re-insert fields to the header and recover the lost focus,
+    // which I couldn't get working with IE), I've decided to just
+    // override the onDataChange method with Ext 3.2 version.
+    // See also: http://www.sencha.com/forum/showthread.php?118510
+    view.onDataChange = function() {
+      this.refresh(); // this was: this.refresh(true);
+      this.updateHeaderSortState();
+      this.syncFocusEl(0);
+    };
+    
     // convert all filter configs to FilterRowFilter instances
     var Filter = Ext.ux.grid.FilterRowFilter;
     this.eachFilterColumn(function(col) {
@@ -100,13 +115,6 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     
     // when grid initially rendered
     grid.on("render", this.renderFields, this);
-    
-    // From Ext 3.3 onwards grid headers are also refreshed when store
-    // is filtered/sorted/etc (anything that fires "datachanged").
-    // So after each grid refresh we re-render all the fields and
-    // focus the field that was previously focused.
-    view.on("beforerefresh", this.rememberFocusedField, this);
-    view.on("refresh", this.renderFields, this);
     
     // when Ext grid state restored (untested)
     grid.on("staterestore", this.onColumnChange, this);
@@ -199,15 +207,6 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     this.applyTemplate();
   },
   
-  rememberFocusedField: function() {
-    this.focusedField = false;
-    this.eachFilterColumn(function(col) {
-      if (col.filter.hasFocus()) {
-        this.focusedField = col.filter;
-      }
-    });
-  },
-  
   renderFields: function() {
     this.eachFilterColumn(function(col) {
       var filterDiv = Ext.get(this.getFilterDivId(col.id));
@@ -220,7 +219,6 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
         editor.render(filterDiv);
       }
     });
-    this.focusedField && this.focusedField.focus();
   },
   
   onFieldChange: function() {
@@ -400,11 +398,6 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
     Ext.each(this.fieldEvents, function(event) {
       this.field.on(event, this.fireChangeEvent, this);
     }, this);
-    
-    // We can't ask directly from Ext.form.Field if it has focus, so
-    // we monitor focus and blur events to keep track of it.
-    this.field.on("focus", this.onFocus, this);
-    this.field.on("blur", this.onBlur, this);
   },
   
   fireChangeEvent: function() {
@@ -486,28 +479,6 @@ Ext.ux.grid.FilterRowFilter = Ext.extend(Ext.util.Observable, {
     var flags = m[2];
     // Create new RegExp substituting value inside pattern
     return new RegExp(String.format(pattern, Ext.escapeRe(value)), flags);
-  },
-  
-  onFocus: function() {
-    this.focused = true;
-  },
-  
-  onBlur: function() {
-    this.focused = false;
-  },
-  
-  /**
-   * True when field is currently focused.
-   */
-  hasFocus: function() {
-    return this.focused;
-  },
-  
-  /**
-   * Focuses the field of filter.
-   */
-  focus: function() {
-    this.field.focus();
   }
 });
 
