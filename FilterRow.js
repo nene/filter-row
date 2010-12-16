@@ -84,16 +84,20 @@ Ext.ux.grid.FilterRow = Ext.extend(Ext.util.Observable, {
     this.grid = grid;
     var cm = grid.getColumnModel();
     var view = grid.getView();
-    
-    // For some reason GridView was changed in Ext 3.3 to completely
-    // re-render grid header on store "datachanged" event (which is
-    // fired after each loading/filtering/sorting).  Because this
-    // re-rendering seems completely unnecessary and coding around it
-    // quite hard (each time user types a character into field we have
-    // to re-insert fields to the header and recover the lost focus,
-    // which I couldn't get working with IE), I've decided to just
-    // override the onDataChange method with Ext 3.2 version.
-    // See also: http://www.sencha.com/forum/showthread.php?118510
+   
+    /*
+     * Because of PivotGrid, GridView was changed in Ext 3.3 to
+     * completely re-render grid header on store "datachanged" event
+     * (which is fired after each loading/filtering/sorting).  But for
+     * regular grids this re-rendering seems completely unnecessary
+     * and coding around it is quite hard (each time user types a
+     * character into field we have to re-insert fields to the header
+     * and recover the lost focus, which I couldn't get working with
+     * IE), I've decided to just override the onDataChange method with
+     * Ext 3.2 version.
+     * 
+     * See also: http://www.sencha.com/forum/showthread.php?118510
+     */
     view.onDataChange = function() {
       this.refresh(); // this was: this.refresh(true);
       this.updateHeaderSortState();
