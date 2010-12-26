@@ -116,8 +116,9 @@ A picture speaks a thousand words
 
 * [Live example][live]
 
-This is not one man's work
---------------------------
+
+Thanks
+------
 
 * Based on [durlabh's code from ExtJS forum][post].
 * Thanks to [Saneth][saneth] for patch on better look.
@@ -125,13 +126,18 @@ This is not one man's work
   image inside filter fields.
 * Thanks to [shivaaqua][shivaaqua] for help in making FilterRow work
   with ExtJS 3.3.
+* Thanks to [Ed Spencer][ed] for providing insight into GridView
+  changes in Ext 3.3.
+* And thanks to everybody for reporting bugs.
+
 
 Changelog
 ---------
 
-* Current Beta
+* 0.6 version
   * Fixed bug with comboboxes in FilterRow not working in IE.
   * Fixed bug with renaming column headers.
+
 * 0.5 version
   * Now working with ExtJS 3.3.
   * The default test is now `"/{0}/i"` instead of `"/^{0}/i"` -
@@ -192,3 +198,4 @@ Changelog
 [live]: http://triin.net/temp/filter-row/
 [jyri]: http://tarkpea.tumblr.com/
 [shivaaqua]: https://github.com/nene/filter-row/issues/closed#issue/1/comment/485585
+[ed]: http://edspencer.net/
