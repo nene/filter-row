@@ -198,7 +198,7 @@ foreach ($data as $d) {
     if (!preg_match("/^$_REQUEST[company]/i", $company)) {
       continue;
     }
-    if ($_REQUEST[price] > $price) {
+    if ($_REQUEST["price"] > $price) {
       continue;
     }
     if (!preg_match("/^$_REQUEST[change]/i", $change)) {
